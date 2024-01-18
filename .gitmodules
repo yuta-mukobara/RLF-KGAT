@@ -1,0 +1,3 @@
+[submodule "KernelGAT"]
+	path = KernelGAT
+	url = git@github.com:yuta-mukobara/KernelGAT.git
