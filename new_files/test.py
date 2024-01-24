@@ -39,7 +39,6 @@ def eval_model(model, label_list, validset_reader, outdir, name, args):
     with open(outpath, "w") as f:
         for index, data in enumerate(validset_reader):
             inputs, ids = data
-            print(ids)
             logits = model(inputs)
             preds = logits.max(1)[1].tolist()
 
@@ -63,8 +62,8 @@ if __name__ == "__main__":
     parser.add_argument('--checkpoint', required=True)
     parser.add_argument('--dropout', type=float, default=0.6, help='Dropout.')
     parser.add_argument('--no-cuda', action='store_true', default=False, help='Disables CUDA training.')
-    #parser.add_argument("--bert_hidden_dim", default=768, type=int, help="Total batch size for training.")
-    parser.add_argument("--bert_hidden_dim", default=1024, type=int, help="Total batch size for training.")
+    parser.add_argument("--bert_hidden_dim", default=768, type=int, help="Total batch size for training.")
+    #parser.add_argument("--bert_hidden_dim", default=1024, type=int, help="Total batch size for training.")
     parser.add_argument("--layer", type=int, default=1, help='Graph Layer.')
     parser.add_argument("--num_labels", type=int, default=3)
     parser.add_argument("--kernel", type=int, default=21, help='Evidence num.')

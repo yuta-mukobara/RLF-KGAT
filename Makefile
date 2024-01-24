@@ -11,30 +11,26 @@ docker-run:
 
 
 download:
-	cd KernelGAT && wget https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT.zip && unzip KernelGAT.zip
-	cd KernelGAT && wget https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT_roberta_large.zip && unzip KernelGAT_roberta_large.zip
-
-retrieval: 
-	docker run --gpus 1 -it --rm --shm-size 100G -v $(PWD)/KernelGAT/kgat:/workspace/kgat -v /data1/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) python data/generate_pair.py --infile data/all_dev.json --outfile data/dev_pair
-	docker run --gpus 1 -it --rm --shm-size 100G -v $(PWD)/KernelGAT/kgat:/workspace/kgat -v /data1/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) python data/generate_pair.py --infile data/all_train.json --outfile data/train_pair
-	docker run --gpus 1 -it --rm --shm-size 100G -v $(PWD)/KernelGAT/kgat:/workspace/kgat -v /data1/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) python retrieval_model/train.py --outdir checkpoint/retrieval_model \
-                                                                                                                          --train_path data/train_pair \
-                                                                                                                          --valid_path data/dev_pair \
-                                                                                                                          --bert_pretrain bert_base
+	cd KernelGAT && wget https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT.zip && \
+    unzip "KernelGAT.zip" && rm -rf "KernelGAT.zip"
+	cd KernelGAT && wget https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT_roberta_large.zip && \
+    unzip "KernelGAT_roberta_large.zip" && rm -rf "KernelGAT_roberta_large.zip"
 
 
 prepro:
-	cp -f new_fi
+	cp -f new_files/* KernelGAT/kgat/
+	cp KernelGAT/KernelGAT/data/* KernelGAT/data/
 
-kgat: 
+
+kgat:
 	docker run --gpus all -it --rm --shm-size 100G \
-  -v $(PWD)/KernelGAT/KernelGAT_roberta_large/:/workspace/KernelGAT_roberta_large \
-  -v /data2/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) \
-    python KernelGAT_roberta_large/kgat/train.py \
-      --outdir checkpoint_$(CNT)/kgat \
-      --train_path data/new.json \
+    -v $(PWD)/KernelGAT:/workspace $(DOCKER_IMAGE) \
+    python kgat/train.py \
+      --outdir checkpoint \
+      --train_path data/bert_train.json \
       --valid_path data/bert_dev.json \
-      --bert_pretrain KernelGAT_roberta_large/roberta_large \
+      --bert_pretrain bert_base \
+      --postpretrain /workspace/KernelGAT/checkpoint/pretrain/model.best.pt \
       --comp $(NUM1) \
       --nl_coef $(NUM2) \
       --imb --beta $(NUM3)
@@ -42,8 +38,8 @@ kgat:
 
 eval_kgat:
 	docker run --gpus all -it --rm --shm-size 100G \
-  -v $(PWD)/KernelGAT/KernelGAT_roberta_large/:/workspace/KernelGAT_roberta_large \
-  -v /data2/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) \
+    -v $(PWD)/KernelGAT/KernelGAT_roberta_large/:/workspace/KernelGAT_roberta_large \
+    -v /data2/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) \
     python KernelGAT_roberta_large/kgat/fever_score_test.py \
       --predicted_labels KernelGAT_roberta_large/kgat/output/dev.json \
       --predicted_evidence data/bert_eval.json \
