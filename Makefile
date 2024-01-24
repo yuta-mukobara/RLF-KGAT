@@ -5,15 +5,14 @@ docker-build:
 	docker build -t $(DOCKER_IMAGE) -f docker/Dockerfile .
 
 docker-run:
-	docker run --gpus '"device=1"' -it --rm --shm-size 100G \
-  -v $(PWD)/KernelGAT/KernelGAT_roberta_large/:/workspace/KernelGAT_roberta_large \
-  -v /data2/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) \
+	docker run --gpus all -it --rm --shm-size 100G \
+  -v $(PWD)/KernelGAT/:/workspace/ $(DOCKER_IMAGE) \
     /bin/bash
 
-################ 
 
 download:
-	cd KernelGAT && curl -O https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT.zip && unzip KernelGAT.zip && curl -O https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT_roberta_large.zip && unzip KernelGAT_roberta_large.zip && cp -r KernelGAT/* . && cp KernelGAT_roberta_large/* . 
+	cd KernelGAT && wget https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT.zip && unzip KernelGAT.zip
+	cd KernelGAT && wget https://thunlp.oss-cn-qingdao.aliyuncs.com/KernelGAT/FEVER/KernelGAT_roberta_large.zip && unzip KernelGAT_roberta_large.zip
 
 retrieval: 
 	docker run --gpus 1 -it --rm --shm-size 100G -v $(PWD)/KernelGAT/kgat:/workspace/kgat -v /data1/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) python data/generate_pair.py --infile data/all_dev.json --outfile data/dev_pair
@@ -24,8 +23,11 @@ retrieval:
                                                                                                                           --bert_pretrain bert_base
 
 
+prepro:
+	cp -f new_fi
+
 kgat: 
-	docker run --gpus '"device=1"' -it --rm --shm-size 100G \
+	docker run --gpus all -it --rm --shm-size 100G \
   -v $(PWD)/KernelGAT/KernelGAT_roberta_large/:/workspace/KernelGAT_roberta_large \
   -v /data2/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) \
     python KernelGAT_roberta_large/kgat/train.py \
@@ -39,7 +41,7 @@ kgat:
 
 
 eval_kgat:
-	docker run --gpus '"device=1"' -it --rm --shm-size 100G \
+	docker run --gpus all -it --rm --shm-size 100G \
   -v $(PWD)/KernelGAT/KernelGAT_roberta_large/:/workspace/KernelGAT_roberta_large \
   -v /data2/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) \
     python KernelGAT_roberta_large/kgat/fever_score_test.py \
@@ -51,7 +53,7 @@ eval_kgat:
 
 
 test_kgat:
-	docker run --gpus '"device=1"' -it --rm --shm-size 100G \
+	docker run --gpus all -it --rm --shm-size 100G \
   -v $(PWD)/KernelGAT/KernelGAT_roberta_large/:/workspace/KernelGAT_roberta_large \
   -v /data2/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) \
     python KernelGAT_roberta_large/kgat/test.py \
@@ -64,7 +66,7 @@ test_kgat:
       --nl_coef $(NUM2) \
       --imb --beta $(NUM3) \
       --idx $(NUM4)
-	docker run --gpus '"device=1"' -it --rm --shm-size 100G \
+	docker run --gpus all -it --rm --shm-size 100G \
   -v $(PWD)/KernelGAT/KernelGAT_roberta_large/:/workspace/KernelGAT_roberta_large \
   -v /data2/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) \
     python KernelGAT_roberta_large/kgat/test.py \
