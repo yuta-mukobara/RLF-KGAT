@@ -31,47 +31,43 @@ kgat:
       --valid_path data/bert_dev.json \
       --bert_pretrain bert_base \
       --postpretrain /workspace/KernelGAT/checkpoint/pretrain/model.best.pt \
-      --comp $(NUM1) \
-      --nl_coef $(NUM2) \
-      --imb --beta $(NUM3)
+      --comp sr \
+      --nl_coef 0.25 \
+      --imb --beta 0.999999
 
 
-eval_kgat:
+
+test:
 	docker run --gpus all -it --rm --shm-size 100G \
-    -v $(PWD)/KernelGAT/KernelGAT_roberta_large/:/workspace/KernelGAT_roberta_large \
-    -v /data2/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) \
-    python KernelGAT_roberta_large/kgat/fever_score_test.py \
-      --predicted_labels KernelGAT_roberta_large/kgat/output/dev.json \
+    -v $(PWD)/KernelGAT:/workspace $(DOCKER_IMAGE) \
+    python kgat/test.py \
+      --outdir kgat/output \
+      --test_path data/bert_eval.json \
+      --bert_pretrain bert_base \
+      --checkpoint checkpoint \
+      --name dev.json \
+      --comp sr \
+      --nl_coef 0.25 \
+      --imb --beta 0.999999
+	docker run --gpus all -it --rm --shm-size 100G \
+    -v $(PWD)/KernelGAT:/workspace $(DOCKER_IMAGE) \
+    python kgat/test.py \
+      --outdir kgat/output \
+      --test_path data/bert_test.json \
+      --bert_pretrain bert_base \
+      --checkpoint checkpoint \
+      --name test.json \
+      --comp sr \
+      --nl_coef 0.25 \
+      --imb --beta 0.999999
+
+
+eval:
+	docker run --gpus all -it --rm --shm-size 100G \
+    -v $(PWD)/KernelGAT:/workspace $(DOCKER_IMAGE) \
+    python kgat/fever_score_test.py \
+      --predicted_labels kgat/output/dev.json \
       --predicted_evidence data/bert_eval.json \
       --actual data/dev_eval.json \
-      --idx $(NUM4) \
       --name eval
 
-
-test_kgat:
-	docker run --gpus all -it --rm --shm-size 100G \
-  -v $(PWD)/KernelGAT/KernelGAT_roberta_large/:/workspace/KernelGAT_roberta_large \
-  -v /data2/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) \
-    python KernelGAT_roberta_large/kgat/test.py \
-      --outdir KernelGAT_roberta_large/kgat/output \
-      --test_path data/bert_eval.json \
-      --bert_pretrain KernelGAT_roberta_large/roberta_large \
-      --checkpoint checkpoint_$(CNT)/kgat \
-      --name dev.json \
-      --comp $(NUM1) \
-      --nl_coef $(NUM2) \
-      --imb --beta $(NUM3) \
-      --idx $(NUM4)
-	docker run --gpus all -it --rm --shm-size 100G \
-  -v $(PWD)/KernelGAT/KernelGAT_roberta_large/:/workspace/KernelGAT_roberta_large \
-  -v /data2/mukobara/KernelGAT:/workspace $(DOCKER_IMAGE) \
-    python KernelGAT_roberta_large/kgat/test.py \
-      --outdir KernelGAT_roberta_large/kgat/output \
-      --test_path data/bert_test.json \
-      --bert_pretrain KernelGAT_roberta_large/roberta_large \
-      --checkpoint checkpoint_$(CNT)/kgat \
-      --name test.json \
-      --comp $(NUM1) \
-      --nl_coef $(NUM2) \
-      --imb --beta $(NUM3) \
-      --idx $(NUM4)
