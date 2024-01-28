@@ -44,7 +44,7 @@ test:
 	docker run --gpus all -it --rm --shm-size 100G \
     -v $(PWD)/KernelGAT:/workspace $(DOCKER_IMAGE) \
     python kgat/test.py \
-      --outdir kgat/output \
+      --outdir kgat/output/ \
       --test_path data/bert_eval.json \
       --bert_pretrain bert_base \
       --checkpoint checkpoint \
@@ -55,7 +55,7 @@ test:
 	docker run --gpus all -it --rm --shm-size 100G \
     -v $(PWD)/KernelGAT:/workspace $(DOCKER_IMAGE) \
     python kgat/test.py \
-      --outdir kgat/output \
+      --outdir kgat/output/ \
       --test_path data/bert_test.json \
       --bert_pretrain bert_base \
       --checkpoint checkpoint \
