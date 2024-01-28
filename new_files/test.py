@@ -97,10 +97,7 @@ if __name__ == "__main__":
     bert_model = bert_model.cuda()
     bert_model.eval()
     model = inference_model(bert_model, args)
-    if args.comp is None:
-        model_path = args.checkpoint + '/model' + "_" + str(args.nl_coef) + "_None_" + str(args.beta) + ".best.pt"
-    else:
-        model_path = args.checkpoint + '/model.best.pt'
+    model_path = args.checkpoint + '/model.best.pt'
     model.load_state_dict(torch.load(model_path)['model'])
     model = model.cuda()
     model.eval()

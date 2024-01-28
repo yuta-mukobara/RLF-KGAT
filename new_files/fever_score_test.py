@@ -183,10 +183,6 @@ def fever_score(y_true, y_pred, predictions,actual=None, max_evidence=5):
 
 
 
-
-
-
-
 parser = argparse.ArgumentParser()
 parser.add_argument("--predicted_labels",type=str)
 

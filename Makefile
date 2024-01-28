@@ -19,6 +19,9 @@ download:
 
 prepro:
 	cp -f new_files/* KernelGAT/kgat/
+	cp -f new_files/* KernelGAT/KernelGAT_roberta_large/kgat/
+	sed -e "s/768/1024/g" train.py > train.py
+	sed -e "s/768/1024/g" test.py > test.py
 	cp KernelGAT/KernelGAT/data/* KernelGAT/data/
 
 
@@ -34,7 +37,6 @@ kgat:
       --comp sr \
       --nl_coef 0.25 \
       --imb --beta 0.999999
-
 
 
 test:

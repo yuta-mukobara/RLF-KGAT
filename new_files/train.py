@@ -69,8 +69,6 @@ def correct_prediction(output, labels, count, y_true, y_pred):
         else:
             count[5] += 1
         num += 1
-    #print(val0.sum(), '         ', val1.sum(), '          ', val2.sum())
-    #print("0 = " + correct[0] + " , 1 = " + correct[1] + " , 2 = " + correct[2])
     return correct, [val0.sum(), val1.sum(), val2.sum()]
 
 
@@ -88,15 +86,12 @@ def each_accuracy(count):
         cor2 = count[5] / (count[4] + count[5])
     except ZeroDivisionError:
         cor2 = 0
-    print("####################################")
-    print(cor0, '     ', cor1, '     ', cor2)
-    print("----------------------------------------------------------------------------")
     if flag == 0:
-        with open('each_acc.dat', mode='w') as f:
-            f.write(str(cor0) + '     ' + str(cor1) + '     ' + str(cor2) + '\n')
+        w_mode = 'w'
     else:
-        with open('each_acc.dat', mode='a') as f:
-            f.write(str(cor0) + '     ' + str(cor1) + '     ' + str(cor2) + '\n')
+        w_mode = 'a'
+    with open('each_acc.dat', mode=w_mode) as f:
+        f.write(str(cor0) + '     ' + str(cor1) + '     ' + str(cor2) + '\n')
     return
 
 
@@ -116,30 +111,24 @@ def eval_model(model, validset_reader):
         corr, tmp2 = correct_prediction(prob, lab_tensor, count, y_true, y_pred)
         correct_pred += corr
     each_accuracy(count)
-    #calc_f1(count)
     cof = confusion_matrix(y_true, y_pred)
-    print("--- confusion matrix ---")
-    print(cof)
+    logger.info('Confusion matrix')
+    logger.info('{0}'.format(cof))
     recall = recall_score(y_true, y_pred, average='micro')
     prec = precision_score(y_true, y_pred, average='micro')
     f1 = f1_score(y_true, y_pred, average='micro')
-    print("f1 score = ", f1)
     if flag == 0:
-        with open('f1_score.dat', mode='w') as f:
-            f.write(str(recall) + '     ' + str(prec) + '     ' + str(f1) + '\n')
-        with open('confusion_matrix.dat', mode='w') as f:
-            f.write(str(cof) + '\n')
+        w_mode = 'w'
     else:
-        with open('f1_score.dat', mode='a') as f:
-            f.write(str(recall) + '     ' + str(prec) + '     ' + str(f1) + '\n')
-        with open('confusion_matrix.dat', mode='a') as f:
-            f.write(str(cof) + '\n')
-            f.write('# -------------------------------------------------------------\n')
+        w_mode = 'a'
+    with open('f1_score.dat', mode=w_mode) as f:
+        f.write(str(recall) + '     ' + str(prec) + '     ' + str(f1) + '\n')
+    with open('confusion_matrix.dat', mode=w_mode) as f:
+        f.write(str(cof) + '\n')
+        f.write('# -------------------------------------------------------------\n')
     flag = 1
     dev_accuracy = correct_pred / validset_reader.total_num
     return dev_accuracy
-
-
 
 
 
@@ -161,8 +150,6 @@ def train_model(model, ori_model, args, trainset_reader, validset_reader):
                          lr=args.learning_rate,
                          warmup=args.warmup_proportion,
                          t_total=t_total)
-    #optimizer = optim.Adam(model.parameters(),
-    #                       lr=args.learning_rate)
     global_step = 0
     for epoch in range(int(args.num_train_epochs)):
         model.train()
@@ -171,11 +158,6 @@ def train_model(model, ori_model, args, trainset_reader, validset_reader):
             inputs, lab_tensor = data
             prob = model(inputs) # b x 3
             loss1, loss2 = compute_loss(prob, lab_tensor, comp=args.comp, imb=args.imb, beta=args.beta)
-            #print("-----------------")
-            #print(prob)
-            #print("------------------------------------")
-            #print(lab_tensor)
-            #print("--------------------------------------------------------------------------")
             running_loss1 += loss1.item()
             running_loss2 += loss2.item()
             loss = loss1 + args.nl_coef * loss2
@@ -194,18 +176,9 @@ def train_model(model, ori_model, args, trainset_reader, validset_reader):
                     logger.info('Dev total acc: {0}'.format(dev_accuracy))
                     if dev_accuracy > best_accuracy:
                         best_accuracy = dev_accuracy
-
-                        if args.comp is None:
-                            torch.save({'epoch': epoch,
-                                        'model': ori_model.state_dict(),
-                                        'best_accuracy': best_accuracy}, save_path + "_" + str(args.nl_coef) + "_None_" + str(args.beta) + ".best.pt")
-                        else:
-                            torch.save({'epoch': epoch,
-                                        'model': ori_model.state_dict(),
-                                        'best_accuracy': best_accuracy}, save_path + "_" + str(args.nl_coef) + "_" + args.comp + "_" + str(args.beta) + ".best.pt")
-                            torch.save({'epoch': epoch,
-                                        'model': ori_model.state_dict(),
-                                        'best_accuracy': best_accuracy}, save_path + ".best.pt")
+                        torch.save({'epoch': epoch,
+                                    'model': ori_model.state_dict(),
+                                    'best_accuracy': best_accuracy}, save_path + ".best.pt")
                         logger.info("Saved best epoch {0}, best accuracy {1}".format(epoch, best_accuracy))
 
 
