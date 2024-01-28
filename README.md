@@ -1,5 +1,9 @@
 # Rethinking Loss Functions for Fact Verification
 
+The following shows how to clone a repository including even submodules.
+```
+git clone --recursive git@github.com:yuta-mukobara/RLF-KGAT.git
+```
 
 A Docker environment for [thunlp/KernelGAT](https://github.com/thunlp/KernelGAT)
 

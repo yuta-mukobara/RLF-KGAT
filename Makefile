@@ -20,9 +20,10 @@ download:
 prepro:
 	cp -f new_files/* KernelGAT/kgat/
 	cp -f new_files/* KernelGAT/KernelGAT_roberta_large/kgat/
-	sed -e "s/768/1024/g" train.py > train.py
-	sed -e "s/768/1024/g" test.py > test.py
+	sed -e "s/768/1024/g" new_files/train.py > KernelGAT/KernelGAT_roberta_large/kgat/train.py
+	sed -e "s/768/1024/g" new_files/test.py > KernelGAT/KernelGAT_roberta_large/kgat/test.py
 	cp KernelGAT/KernelGAT/data/* KernelGAT/data/
+	cp KernelGAT/KernelGAT/bert_base/* KernelGAT/bert_base/
 
 
 kgat:

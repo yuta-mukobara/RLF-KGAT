@@ -2,6 +2,11 @@ torch==1.4.0
 allennlp==0.9.0
 sqlitedict==1.7.0
 wget==3.2
+urllib3==1.25.10
+Jinja2==3.0
+MarkupSafe==2.1.1
+requests==2.30.0
+wcwidth==0.2.5
 flashtext==2.7
 pexpect==4.8.0
 fire==0.4.0
