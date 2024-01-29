@@ -23,7 +23,6 @@ from sklearn.metrics import *
 from loss import compute_loss
 
 logger = logging.getLogger(__name__)
-flag = 0
 
 def accuracy(output, labels):
     preds = output.max(1)[1].type_as(labels)
@@ -73,7 +72,6 @@ def correct_prediction(output, labels, count, y_true, y_pred):
 
 
 def each_accuracy(count):
-    global flag
     try:
         cor0 = count[1] / (count[0] + count[1])
     except ZeroDivisionError:
@@ -86,19 +84,12 @@ def each_accuracy(count):
         cor2 = count[5] / (count[4] + count[5])
     except ZeroDivisionError:
         cor2 = 0
-    if flag == 0:
-        w_mode = 'w'
-    else:
-        w_mode = 'a'
-    with open('each_acc.dat', mode=w_mode) as f:
-        f.write(str(cor0) + '     ' + str(cor1) + '     ' + str(cor2) + '\n')
     return
 
 
 
 
 def eval_model(model, validset_reader):
-    global flag
     model.eval()
     correct_pred = 0.0
     val = [0.0, 0.0, 0.0]
@@ -117,16 +108,6 @@ def eval_model(model, validset_reader):
     recall = recall_score(y_true, y_pred, average='micro')
     prec = precision_score(y_true, y_pred, average='micro')
     f1 = f1_score(y_true, y_pred, average='micro')
-    if flag == 0:
-        w_mode = 'w'
-    else:
-        w_mode = 'a'
-    with open('f1_score.dat', mode=w_mode) as f:
-        f.write(str(recall) + '     ' + str(prec) + '     ' + str(f1) + '\n')
-    with open('confusion_matrix.dat', mode=w_mode) as f:
-        f.write(str(cof) + '\n')
-        f.write('# -------------------------------------------------------------\n')
-    flag = 1
     dev_accuracy = correct_pred / validset_reader.total_num
     return dev_accuracy
 

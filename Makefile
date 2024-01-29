@@ -69,6 +69,7 @@ eval:
 	docker run --gpus all -it --rm --shm-size 100G \
     -v $(PWD)/KernelGAT:/workspace $(DOCKER_IMAGE) \
     python kgat/fever_score_test.py \
+      --outdir kgat/output/ \
       --predicted_labels kgat/output/dev.json \
       --predicted_evidence data/bert_eval.json \
       --actual data/dev_eval.json \

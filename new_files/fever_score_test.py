@@ -185,7 +185,7 @@ def fever_score(y_true, y_pred, predictions,actual=None, max_evidence=5):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--predicted_labels",type=str)
-
+parser.add_argument('--outdir', required=True, help='path to output directory')
 parser.add_argument("--predicted_evidence",type=str)
 parser.add_argument("--actual",type=str)
 parser.add_argument('--nl_coef', type=float, default=0.0, help='a hyperparameter for negative learning')
@@ -237,17 +237,7 @@ for ev,label in zip(predicted_evidence,predicted_labels):
 score,acc,precision,recall,f1 = fever_score(y_true, y_pred, predictions,actual)
 
 
-if args.comp is None:
-    new_dir_path_recursive = './ECE_' + str(args.nl_coef) + "_None_" + str(args.beta) + "_" + str(args.idx)
-else:
-    new_dir_path_recursive = './ECE_' + str(args.nl_coef) + "_" + args.comp + "_" + str(args.beta) + "_" + str(args.idx)
-try:
-    os.makedirs(new_dir_path_recursive)
-except FileExistsError:
-    pass
-
-
-with open(new_dir_path_recursive + "/" + args.name + "_confusion.dat", "w") as f:
+with open( args.outdir + args.name + "_confusion.dat", "w") as f:
     for i, val in enumerate(y_true):
         f.write(str(y_true[i]) + '     ' + str(y_pred[i]) + '\n')
 

@@ -21,20 +21,8 @@ from models import inference_model
 logger = logging.getLogger(__name__)
 
 
-
 def eval_model(model, label_list, validset_reader, outdir, name, args):
     outpath = outdir + name
-
-    if args.comp is None:
-        new_dir_path_recursive = './ECE_' + str(args.nl_coef) + "_None_" + str(args.beta) + "_" + str(args.idx)
-    else:
-        new_dir_path_recursive = './ECE_' + str(args.nl_coef) + "_" + args.comp + "_" + str(args.beta) + "_" + str(args.idx)
-    try:
-        os.makedirs(new_dir_path_recursive)
-    except FileExistsError:
-        pass
-
-    f_p = open(new_dir_path_recursive + "/dev_test_prediction_probability.dat", mode='w')
 
     with open(outpath, "w") as f:
         for index, data in enumerate(validset_reader):
@@ -42,14 +30,10 @@ def eval_model(model, label_list, validset_reader, outdir, name, args):
             logits = model(inputs)
             preds = logits.max(1)[1].tolist()
 
-            for i in range(len(preds)):
-                f_p.write(str(logits[i][0].item()) + "            " + str(logits[i][1].item()) + "            " + str(logits[i][2].item()) + '\n')
-
             assert len(preds) == len(ids)
             for step in range(len(preds)):
                 instance = {"id": ids[step], "predicted_label": label_list[preds[step]]}
                 f.write(json.dumps(instance) + "\n")
-    f_p.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
