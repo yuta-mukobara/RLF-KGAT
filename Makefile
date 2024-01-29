@@ -18,10 +18,8 @@ download:
 
 
 prepro:
-	cp -f new_files/* KernelGAT/kgat/
-	cp -f new_files/* KernelGAT/KernelGAT_roberta_large/kgat/
-	sed -e "s/768/1024/g" new_files/train.py > KernelGAT/KernelGAT_roberta_large/kgat/train.py
-	sed -e "s/768/1024/g" new_files/test.py > KernelGAT/KernelGAT_roberta_large/kgat/test.py
+	cp -f new_files/BERT/* KernelGAT/kgat/
+	cp -f new_files/RoBERTa/* KernelGAT/KernelGAT_roberta_large/kgat/
 	cp KernelGAT/KernelGAT/data/* KernelGAT/data/
 	cp KernelGAT/KernelGAT/bert_base/* KernelGAT/bert_base/
 
@@ -38,7 +36,6 @@ kgat:
       --comp sr \
       --nl_coef 0.25 \
       --imb --beta 0.999999
-
 
 test:
 	docker run --gpus all -it --rm --shm-size 100G \
@@ -75,3 +72,15 @@ eval:
       --actual data/dev_eval.json \
       --name eval
 
+kgat2:
+	docker run --gpus all -it --rm --shm-size 100G \
+    -v $(PWD)/KernelGAT:/workspace $(DOCKER_IMAGE) \
+    python kgat/train.py \
+      --outdir checkpoint \
+      --train_path data/bert_train.json \
+      --valid_path data/bert_dev.json \
+      --bert_pretrain bert_base \
+      --postpretrain /workspace/KernelGAT/checkpoint/pretrain/model.best.pt \
+      --comp sr \
+      --nl_coef 0.25 \
+      --imb --beta 0.999999

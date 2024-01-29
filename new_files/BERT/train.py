@@ -31,86 +31,22 @@ def accuracy(output, labels):
     return correct / len(labels)
 
 
-def correct_prediction(output, labels, count, y_true, y_pred):
+def correct_prediction(output, labels):
     preds = output.max(1)[1].type_as(labels)
     correct = preds.eq(labels).double()
-    spread = preds.eq(labels).double()
     correct = correct.sum()
-
-    y_pred.extend(preds.tolist())
-    y_true.extend(labels.tolist())
-    idx = preds == 0
-    val0 = spread[idx]
-    num = 0
-    for i in val0:
-        if i == 0:
-            count[0] += 1
-        else:
-            count[1] += 1
-        num += 1
-
-    idx = preds == 1
-    val1 = spread[idx]
-    num = 0
-    for i in val1:
-        if i == 0:
-            count[2] += 1
-        else:
-            count[3] += 1
-        num += 1
-
-    idx = preds == 2
-    val2 = spread[idx]
-    num = 0
-    for i in val2:
-        if i == 0:
-            count[4] += 1
-        else:
-            count[5] += 1
-        num += 1
-    return correct, [val0.sum(), val1.sum(), val2.sum()]
-
-
-def each_accuracy(count):
-    try:
-        cor0 = count[1] / (count[0] + count[1])
-    except ZeroDivisionError:
-        cor0 = 0
-    try:
-        cor1 = count[3] / (count[2] + count[3])
-    except ZeroDivisionError:
-        cor1 = 0
-    try:
-        cor2 = count[5] / (count[4] + count[5])
-    except ZeroDivisionError:
-        cor2 = 0
-    return
-
-
+    return correct
 
 
 def eval_model(model, validset_reader):
     model.eval()
     correct_pred = 0.0
-    val = [0.0, 0.0, 0.0]
-    count = [0, 0, 0, 0, 0, 0]
-    y_true = []
-    y_pred = []
     for index, data in enumerate(validset_reader):
         inputs, lab_tensor = data
         prob = model(inputs)
-        corr, tmp2 = correct_prediction(prob, lab_tensor, count, y_true, y_pred)
-        correct_pred += corr
-    each_accuracy(count)
-    cof = confusion_matrix(y_true, y_pred)
-    logger.info('Confusion matrix')
-    logger.info('{0}'.format(cof))
-    recall = recall_score(y_true, y_pred, average='micro')
-    prec = precision_score(y_true, y_pred, average='micro')
-    f1 = f1_score(y_true, y_pred, average='micro')
+        correct_pred += correct_prediction(prob, lab_tensor)
     dev_accuracy = correct_pred / validset_reader.total_num
     return dev_accuracy
-
 
 
 def train_model(model, ori_model, args, trainset_reader, validset_reader):
