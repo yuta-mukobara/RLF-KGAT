@@ -88,7 +88,6 @@ If you use this code, please cite our paper:
     url       = {https://aclanthology.org/2024.eacl-short.38},
     pages     = {432--442}
 }
-
 ```
 
 
