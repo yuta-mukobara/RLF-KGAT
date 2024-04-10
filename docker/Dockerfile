@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 COPY docker/requirements.txt /opt/app
 RUN python -m pip install -r requirements.txt
-RUN python -m pip install fever-scorer==2.0.39
+#RUN python -m pip install fever-scorer==2.0.39
 
 ENV PYTHONIOENCODING=utf-8
 WORKDIR /workspace
